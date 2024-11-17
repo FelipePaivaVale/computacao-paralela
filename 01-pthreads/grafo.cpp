@@ -15,7 +15,6 @@
 std::unordered_map<int, std::vector<int>> graph, reverse_graph;
 std::mutex mtx;
 
-// Variáveis de métricas
 int nodes = 0, edges = 0;
 int largest_wcc_nodes = 0, largest_wcc_edges = 0;
 int largest_scc_nodes = 0, largest_scc_edges = 0;
@@ -24,7 +23,6 @@ long long triangles = 0;
 double fraction_of_closed_triangles = 0.0;
 int diameter = 0;
 
-// Função para carregar o grafo
 void load_graph(const std::string& filename) {
     std::ifstream file(filename);
     std::string line;
@@ -46,7 +44,6 @@ void load_graph(const std::string& filename) {
     nodes = graph.size();
 }
 
-// BFS para calcular o maior WCC
 void bfs_wcc(int start, std::unordered_set<int>& visited, int& component_nodes, int& component_edges) {
     std::queue<int> q;
     q.push(start);
@@ -68,7 +65,6 @@ void bfs_wcc(int start, std::unordered_set<int>& visited, int& component_nodes, 
     }
 }
 
-// Kosaraju para SCC
 void dfs(int node, std::unordered_set<int>& visited, std::stack<int>& finish_stack) {
     visited.insert(node);
     for (const auto& neighbor : graph[node]) {
@@ -90,7 +86,6 @@ void reverse_dfs(int node, std::unordered_set<int>& visited, int& component_node
     }
 }
 
-// Calcula métricas de clustering e triângulos
 void calculate_clustering_and_triangles() {
     long long total_closed_triangles = 0;
     long long total_possible_triangles = 0;
@@ -116,7 +111,6 @@ void calculate_clustering_and_triangles() {
     average_clustering_coefficient = fraction_of_closed_triangles;
 }
 
-// BFS para diâmetro
 int bfs_diameter(int start) {
     std::queue<int> q;
     std::unordered_map<int, int> distances;
@@ -148,13 +142,11 @@ void calculate_diameter() {
     diameter = max_diameter;
 }
 
-// Função principal
 int main() {
     std::string filename = "web-Google.txt";
 
     load_graph(filename);
 
-    // Calcular maior WCC
     std::unordered_set<int> visited;
     for (const auto& [node, _] : graph) {
         if (visited.find(node) == visited.end()) {
@@ -167,16 +159,13 @@ int main() {
         }
     }
 
-    // Calcular clustering e triângulos
     std::thread clustering_thread(calculate_clustering_and_triangles);
 
-    // Calcular diâmetro
     std::thread diameter_thread(calculate_diameter);
 
     clustering_thread.join();
     diameter_thread.join();
 
-    // Exibir resultados no formato JSON
     std::cout << "{\n  \"graph_metrics\": {\n"
               << "    \"nodes\": " << nodes << ",\n"
               << "    \"edges\": " << edges << ",\n"
